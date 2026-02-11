@@ -4,10 +4,12 @@ import './PokemonDetails.css'
 import usePokemonDetails from "../../hooks/usePokemonDetails";
 import Pokemon from "../Pokemon/Pokemon";
 import ErrorPage from "../ErrorPage/ErrorPage";
+import { useState } from "react";
 
 function PokemonDetail({pokemonName}){
     const {id} = useParams();
-    const [pokemon,pokedexListState,err] = usePokemonDetails(id,pokemonName);
+    const [pokemon,pokedexListState,err,loading] = usePokemonDetails(id,pokemonName);
+
     
     if(err){
         return(
@@ -22,7 +24,10 @@ function PokemonDetail({pokemonName}){
     };
 
 
-    const randomPokemonLists = getRandomPokemons(pokedexListState.pokedexList);
+    const randomPokemonLists = loading 
+    ? [] 
+    : getRandomPokemons(pokedexListState?.pokedexList);
+
     return(
 
         <div className="detail-wrapper">
@@ -36,12 +41,27 @@ function PokemonDetail({pokemonName}){
                 </div>
             </div>
             <div className="similar-pokemon-detail-wrapper">
-                <div className="similar-pokemon-heading">{`Some More ${pokemon.types[0]} Types Pokemons`}</div>
-                <div className="similar-pokemon-details">
-                    {randomPokemonLists.map((pokedex)=> <Pokemon id={pokedex.id} name={pokedex.name} image={pokedex.image} key={pokedex.id}/>)}
+                <div className="similar-pokemon-heading">
+                    {pokemon.types.length > 0 && 
+                        `Some More ${pokemon.types[0]} Type Pokemons`}
                 </div>
-                
+
+                {loading ? (
+                    <div className="similar-pokemon-heading">Loading...</div>
+                ) : (
+                    <div className="similar-pokemon-details">
+                        {randomPokemonLists.map((pokedex) => (
+                            <Pokemon
+                                key={pokedex.id}
+                                id={pokedex.id}
+                                name={pokedex.name}
+                                image={pokedex.image}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
+
         </div>
         
         
